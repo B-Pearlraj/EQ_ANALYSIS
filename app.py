@@ -25,11 +25,11 @@ engine = create_engine(
 
 st.set_page_config(
     page_title="Earthquake Dashboard",
-    page_icon="🌍",
+    page_icon="Logo-PTS.png",
     layout="wide"
 )
 
-st.title("🌍 Earthquake Data Analysis Dashboard")
+st.title("🌋 Earthquake Data Analysis Dashboard")
 st.markdown(
     "Explore earthquake data stored in PostgreSQL using SQL analysis."
 )
@@ -458,7 +458,7 @@ if st.button("▶ Run Query", use_container_width=True):
 # ============================================================
 
 st.markdown("---")
-
-st.caption(
-    "Earthquake Data Analysis Dashboard | PostgreSQL + Streamlit"
+st.markdown(
+    "<div style='text-align:center;'>Created by <b>Pearlraj</b></div>",
+    unsafe_allow_html=True
 )
