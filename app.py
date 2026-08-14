@@ -1,21 +1,42 @@
-
 import streamlit as st
 import pandas as pd
 from sqlalchemy import create_engine
+from urllib.parse import quote_plus
 
-username='postgres'
-password='pearlraj10'
-port=5432
-database_name='earthquake_db'
-host_name='localhost'
+# ============================================================
+# RENDER POSTGRESQL DATABASE CONNECTION
+# ============================================================
 
-engine=create_engine(
-    f'postgresql+psycopg2://{username}:{password}@{host_name}:{port}/{database_name}'
+DATABASE_URL = (
+    "postgresql://earthquake_user:"
+    "LV3TUg8gpIuzQaMIjkfIqQqJ80PGePMp"
+    "@dpg-d9vmeoe417fc73e90tj0-a.oregon-postgres.render.com/"
+    "earthquake_db_cdfc"
 )
 
-st.set_page_config(page_title="Earthquake Dashboard", layout="wide")
+engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True
+)
 
-st.title("Earthquake Data Analysis Dashboard")
+# ============================================================
+# STREAMLIT PAGE CONFIG
+# ============================================================
+
+st.set_page_config(
+    page_title="Earthquake Dashboard",
+    page_icon="🌍",
+    layout="wide"
+)
+
+st.title("🌍 Earthquake Data Analysis Dashboard")
+st.markdown(
+    "Explore earthquake data stored in PostgreSQL using SQL analysis."
+)
+
+# ============================================================
+# SQL QUERIES
+# ============================================================
 
 queries = {
 
@@ -352,30 +373,92 @@ queries = {
         """
 }
 
-selected_query = st.selectbox(
+# ============================================================
+# SIDEBAR
+# ============================================================
+
+st.sidebar.header("Analysis Options")
+
+selected_query = st.sidebar.selectbox(
     "Choose Analysis",
     list(queries.keys())
 )
 
-if st.button("Run Query"):
+# ============================================================
+# DATABASE CONNECTION TEST
+# ============================================================
 
-    df = pd.read_sql(
-        queries[selected_query],
-        engine
-    )
+if st.sidebar.button("Test Database Connection"):
 
-    st.subheader(selected_query)
+    try:
+        with engine.connect() as connection:
+            st.sidebar.success("✅ Database connected successfully!")
 
-    st.dataframe(
-        df,
-        use_container_width=True
-    )
+    except Exception as e:
+        st.sidebar.error("❌ Database connection failed")
+        st.sidebar.code(str(e))
 
-    csv = df.to_csv(index=False)
+# ============================================================
+# RUN QUERY
+# ============================================================
 
-    st.download_button(
-        "Download CSV",
-        csv,
-        "result.csv",
-        "text/csv"
-    )
+if st.button("▶ Run Query", use_container_width=True):
+
+    try:
+
+        with st.spinner("Running SQL query..."):
+
+            df = pd.read_sql(
+                queries[selected_query],
+                engine
+            )
+
+        st.subheader(selected_query)
+
+        if df.empty:
+
+            st.warning("No records found.")
+
+        else:
+
+            st.success(
+                f"Query executed successfully — {len(df):,} rows returned."
+            )
+
+            st.dataframe(
+                df,
+                use_container_width=True,
+                hide_index=True
+            )
+
+            # ------------------------------------------------
+            # DOWNLOAD CSV
+            # ------------------------------------------------
+
+            csv = df.to_csv(index=False)
+
+            st.download_button(
+                label="⬇️ Download CSV",
+                data=csv,
+                file_name="earthquake_analysis_result.csv",
+                mime="text/csv"
+            )
+
+    except Exception as e:
+
+        st.error("❌ Error while executing query")
+
+        st.code(
+            str(e),
+            language="text"
+        )
+
+# ============================================================
+# FOOTER
+# ============================================================
+
+st.markdown("---")
+
+st.caption(
+    "Earthquake Data Analysis Dashboard | PostgreSQL + Streamlit"
+)
