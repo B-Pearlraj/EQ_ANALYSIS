@@ -8,7 +8,7 @@ from urllib.parse import quote_plus
 # ============================================================
 
 DATABASE_URL = (
-    "postgresql://neondb_owner:npg_yJ16SelAVFOY@ep-withered-feather-b56adugb-pooler.c-7.us-east-2.aws.neon.tech/eq-analysis-db?sslmode=require&channel_binding=require"
+    "postgresql://neondb_owner:npg_r4VZdbQD5RAU@ep-odd-block-b5s41nps-pooler.c-7.us-east-2.aws.neon.tech/earthquakes?sslmode=require&channel_binding=require"
 )
 
 engine = create_engine(
